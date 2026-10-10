@@ -1,0 +1,203 @@
+Time
+#
+Log Message
+7.8s	1	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.8s	2	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.8s	3	0.00s - to python to disable frozen modules.
+7.8s	4	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.5s	5	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.5s	6	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.5s	7	0.00s - to python to disable frozen modules.
+8.5s	8	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+9.7s	9	Writing PrismTrainKaggle.py
+17.7s	10	W1007 18:33:35.980000 45 torch/distributed/run.py:852] 
+17.7s	11	W1007 18:33:35.980000 45 torch/distributed/run.py:852] *****************************************
+17.7s	12	W1007 18:33:35.980000 45 torch/distributed/run.py:852] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+17.7s	13	W1007 18:33:35.980000 45 torch/distributed/run.py:852] *****************************************
+32.4s	14	wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+32.6s	15	wandb: Currently logged in as: nkminion (prism-model) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+34.2s	16	wandb: setting up run ir7pdzef
+34.6s	17	wandb: Tracking run with wandb version 0.25.0
+34.6s	18	wandb: Run data is saved locally in /kaggle/working/wandb/run-20261007_183350-ir7pdzef
+34.6s	19	wandb: Run `wandb offline` to turn off syncing.
+34.6s	20	wandb: Syncing run stoic-lion-2
+34.6s	21	wandb: ⭐️ View project at https://wandb.ai/prism-model/final
+34.6s	22	wandb: 🚀 View run at https://wandb.ai/prism-model/final/runs/ir7pdzef
+37.0s	23	No W&B latest checkpoint found. Starting from scratch. Error: artifact membership 'prism-checkpoint:latest' not found in 'prism-model/final'
+37.0s	24	/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+37.0s	25	  return func(*args, **kwargs)
+37.0s	26	[rank0]:[W1007 18:33:55.907781979 ProcessGroupNCCL.cpp:5138] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+37.8s	27	Model Summary: 
+41.5s	28	----------------------------------------------------------------
+41.5s	29	        Layer (type)               Output Shape         Param #
+41.5s	30	================================================================
+41.5s	31	            Conv2d-1         [-1, 64, 256, 256]             640
+41.5s	32	              GELU-2         [-1, 64, 256, 256]               0
+41.5s	33	            Conv2d-3          [-1, 256, 16, 16]       4,194,560
+41.5s	34	           Flatten-4             [-1, 256, 256]               0
+41.5s	35	         LayerNorm-5          [-1, 2, 256, 256]             512
+41.5s	36	           Softmax-6               [-1, 2, 256]               0
+41.5s	37	         LayerNorm-7             [-1, 256, 256]             512
+41.5s	38	            Linear-8             [-1, 256, 256]          65,792
+41.5s	39	            Linear-9             [-1, 256, 256]          65,792
+41.5s	40	           Linear-10             [-1, 256, 256]          65,792
+41.5s	41	          Softmax-11          [-1, 8, 256, 256]               0
+41.5s	42	           Linear-12             [-1, 256, 256]          65,792
+41.5s	43	        Attention-13             [-1, 256, 256]               0
+41.5s	44	        LayerNorm-14             [-1, 256, 256]             512
+41.5s	45	           Linear-15            [-1, 256, 1024]         263,168
+41.5s	46	             GELU-16            [-1, 256, 1024]               0
+41.5s	47	           Linear-17             [-1, 256, 256]         262,400
+41.5s	48	       PrismBlock-18             [-1, 256, 256]               0
+41.5s	49	        LayerNorm-19          [-1, 2, 256, 256]             512
+41.5s	50	          Softmax-20               [-1, 2, 256]               0
+41.5s	51	        LayerNorm-21             [-1, 256, 256]             512
+41.5s	52	           Linear-22             [-1, 256, 256]          65,792
+41.5s	53	           Linear-23             [-1, 256, 256]          65,792
+41.5s	54	           Linear-24             [-1, 256, 256]          65,792
+41.5s	55	          Softmax-25          [-1, 8, 256, 256]               0
+41.5s	56	           Linear-26             [-1, 256, 256]          65,792
+41.5s	57	        Attention-27             [-1, 256, 256]               0
+41.5s	58	        LayerNorm-28             [-1, 256, 256]             512
+41.5s	59	           Linear-29            [-1, 256, 1024]         263,168
+41.5s	60	             GELU-30            [-1, 256, 1024]               0
+41.5s	61	           Linear-31             [-1, 256, 256]         262,400
+41.5s	62	       PrismBlock-32             [-1, 256, 256]               0
+41.5s	63	        LayerNorm-33          [-1, 2, 256, 256]             512
+41.5s	64	          Softmax-34               [-1, 2, 256]               0
+41.5s	65	        LayerNorm-35             [-1, 256, 256]             512
+41.5s	66	           Linear-36             [-1, 256, 256]          65,792
+41.5s	67	           Linear-37             [-1, 256, 256]          65,792
+41.5s	68	           Linear-38             [-1, 256, 256]          65,792
+41.5s	69	          Softmax-39          [-1, 8, 256, 256]               0
+41.5s	70	           Linear-40             [-1, 256, 256]          65,792
+41.5s	71	        Attention-41             [-1, 256, 256]               0
+41.5s	72	        LayerNorm-42             [-1, 256, 256]             512
+41.5s	73	           Linear-43            [-1, 256, 1024]         263,168
+41.5s	74	             GELU-44            [-1, 256, 1024]               0
+41.5s	75	           Linear-45             [-1, 256, 256]         262,400
+41.5s	76	       PrismBlock-46             [-1, 256, 256]               0
+41.5s	77	        LayerNorm-47          [-1, 2, 256, 256]             512
+41.5s	78	          Softmax-48               [-1, 2, 256]               0
+41.5s	79	        LayerNorm-49             [-1, 256, 256]             512
+41.5s	80	           Linear-50             [-1, 256, 256]          65,792
+41.5s	81	           Linear-51             [-1, 256, 256]          65,792
+41.5s	82	           Linear-52             [-1, 256, 256]          65,792
+41.5s	83	          Softmax-53          [-1, 8, 256, 256]               0
+41.5s	84	           Linear-54             [-1, 256, 256]          65,792
+41.5s	85	        Attention-55             [-1, 256, 256]               0
+41.5s	86	        LayerNorm-56             [-1, 256, 256]             512
+41.5s	87	           Linear-57            [-1, 256, 1024]         263,168
+41.5s	88	             GELU-58            [-1, 256, 1024]               0
+41.5s	89	           Linear-59             [-1, 256, 256]         262,400
+41.5s	90	       PrismBlock-60             [-1, 256, 256]               0
+41.5s	91	        LayerNorm-61          [-1, 2, 256, 256]             512
+41.5s	92	          Softmax-62               [-1, 2, 256]               0
+41.5s	93	        LayerNorm-63             [-1, 256, 256]             512
+41.5s	94	           Linear-64             [-1, 256, 256]          65,792
+41.5s	95	           Linear-65             [-1, 256, 256]          65,792
+41.5s	96	           Linear-66             [-1, 256, 256]          65,792
+41.5s	97	          Softmax-67          [-1, 8, 256, 256]               0
+41.5s	98	           Linear-68             [-1, 256, 256]          65,792
+41.6s	99	        Attention-69             [-1, 256, 256]               0
+41.6s	100	        LayerNorm-70             [-1, 256, 256]             512
+41.6s	101	           Linear-71            [-1, 256, 1024]         263,168
+41.6s	102	             GELU-72            [-1, 256, 1024]               0
+41.6s	103	           Linear-73             [-1, 256, 256]         262,400
+41.6s	104	       PrismBlock-74             [-1, 256, 256]               0
+41.6s	105	        LayerNorm-75          [-1, 2, 256, 256]             512
+41.6s	106	          Softmax-76               [-1, 2, 256]               0
+41.6s	107	        LayerNorm-77             [-1, 256, 256]             512
+41.6s	108	           Linear-78             [-1, 256, 256]          65,792
+41.6s	109	           Linear-79             [-1, 256, 256]          65,792
+41.6s	110	           Linear-80             [-1, 256, 256]          65,792
+41.6s	111	          Softmax-81          [-1, 8, 256, 256]               0
+41.6s	112	           Linear-82             [-1, 256, 256]          65,792
+41.6s	113	        Attention-83             [-1, 256, 256]               0
+41.6s	114	        LayerNorm-84             [-1, 256, 256]             512
+41.6s	115	           Linear-85            [-1, 256, 1024]         263,168
+41.6s	116	             GELU-86            [-1, 256, 1024]               0
+41.6s	117	           Linear-87             [-1, 256, 256]         262,400
+41.6s	118	       PrismBlock-88             [-1, 256, 256]               0
+41.6s	119	        LayerNorm-89          [-1, 2, 256, 256]             512
+41.6s	120	          Softmax-90               [-1, 2, 256]               0
+41.6s	121	        LayerNorm-91             [-1, 256, 256]             512
+41.6s	122	           Linear-92             [-1, 256, 256]          65,792
+41.6s	123	           Linear-93             [-1, 256, 256]          65,792
+41.6s	124	           Linear-94             [-1, 256, 256]          65,792
+41.6s	125	          Softmax-95          [-1, 8, 256, 256]               0
+41.6s	126	           Linear-96             [-1, 256, 256]          65,792
+41.6s	127	        Attention-97             [-1, 256, 256]               0
+41.6s	128	        LayerNorm-98             [-1, 256, 256]             512
+41.6s	129	           Linear-99            [-1, 256, 1024]         263,168
+41.6s	130	            GELU-100            [-1, 256, 1024]               0
+41.6s	131	          Linear-101             [-1, 256, 256]         262,400
+41.6s	132	      PrismBlock-102             [-1, 256, 256]               0
+41.6s	133	       LayerNorm-103          [-1, 2, 256, 256]             512
+41.6s	134	         Softmax-104               [-1, 2, 256]               0
+41.6s	135	       LayerNorm-105             [-1, 256, 256]             512
+41.6s	136	          Linear-106             [-1, 256, 256]          65,792
+41.6s	137	          Linear-107             [-1, 256, 256]          65,792
+41.6s	138	          Linear-108             [-1, 256, 256]          65,792
+41.6s	139	         Softmax-109          [-1, 8, 256, 256]               0
+41.6s	140	          Linear-110             [-1, 256, 256]          65,792
+41.6s	141	       Attention-111             [-1, 256, 256]               0
+41.6s	142	       LayerNorm-112             [-1, 256, 256]             512
+41.6s	143	          Linear-113            [-1, 256, 1024]         263,168
+41.6s	144	            GELU-114            [-1, 256, 1024]               0
+41.6s	145	          Linear-115             [-1, 256, 256]         262,400
+41.6s	146	      PrismBlock-116             [-1, 256, 256]               0
+41.6s	147	       LayerNorm-117             [-1, 256, 256]             512
+41.6s	148	        Upsample-118          [-1, 256, 32, 32]               0
+41.6s	149	          Conv2d-119          [-1, 256, 32, 32]         590,080
+41.6s	150	       GroupNorm-120          [-1, 256, 32, 32]             512
+41.6s	151	            GELU-121          [-1, 256, 32, 32]               0
+41.6s	152	        Upsample-122          [-1, 256, 64, 64]               0
+41.6s	153	          Conv2d-123          [-1, 256, 64, 64]         590,080
+41.6s	154	       GroupNorm-124          [-1, 256, 64, 64]             512
+41.6s	155	            GELU-125          [-1, 256, 64, 64]               0
+41.6s	156	        Upsample-126        [-1, 256, 128, 128]               0
+41.6s	157	          Conv2d-127        [-1, 256, 128, 128]         590,080
+41.6s	158	       GroupNorm-128        [-1, 256, 128, 128]             512
+41.6s	159	            GELU-129        [-1, 256, 128, 128]               0
+41.6s	160	          Conv2d-130        [-1, 128, 256, 256]         368,768
+41.6s	161	       GroupNorm-131        [-1, 128, 256, 256]             256
+41.6s	162	            GELU-132        [-1, 128, 256, 256]               0
+41.6s	163	          Conv2d-133        [-1, 313, 256, 256]         360,889
+41.6s	164	================================================================
+41.6s	165	Total params: 13,019,577
+41.6s	166	Trainable params: 13,019,577
+41.6s	167	Non-trainable params: 0
+41.6s	168	----------------------------------------------------------------
+41.6s	169	Input size (MB): 0.25
+41.6s	170	Forward/backward pass size (MB): 690.03
+41.6s	171	Params size (MB): 49.67
+41.6s	172	Estimated Total Size (MB): 739.95
+41.6s	173	----------------------------------------------------------------
+41.6s	174	Creating Dataset: 
+996.4s	175	Compiling Model...
+999.7s	176	Decay Params: 55 | No Decay Params: 122
+999.7s	177	Starting new session
+999.7s	178	Starting train session at epoch 1...
+5164.9s	193	Epoch: 1 | Training Loss: 4.623900 | Validation Loss: 4.242519
+5164.9s	196	Validation Loss has decreased! Saving best model!
+9217.0s	203	Epoch: 2 | Training Loss: 4.153321 | Validation Loss: 4.077237
+9217.0s	204	Validation Loss has decreased! Saving best model!
+13256.0s	205	Epoch: 3 | Training Loss: 4.057260 | Validation Loss: 4.021719
+13256.0s	206	Validation Loss has decreased! Saving best model!
+17298.9s	207	Epoch: 4 | Training Loss: 3.989207 | Validation Loss: 3.921357
+17298.9s	208	Validation Loss has decreased! Saving best model!
+21346.0s	209	Epoch: 5 | Training Loss: 3.942130 | Validation Loss: 3.910638
+21346.0s	210	Validation Loss has decreased! Saving best model!
+25391.8s	211	Epoch: 6 | Training Loss: 3.908053 | Validation Loss: 3.871655
+25391.8s	212	Validation Loss has decreased! Saving best model!
+29435.3s	213	Epoch: 7 | Training Loss: 3.879589 | Validation Loss: 3.862817
+29435.3s	214	Validation Loss has decreased! Saving best model!
+33478.6s	215	Epoch: 8 | Training Loss: 3.854311 | Validation Loss: 3.830647
+33478.6s	216	Validation Loss has decreased! Saving best model!
+37528.3s	217	Epoch: 9 | Training Loss: 3.831810 | Validation Loss: 3.803652
+37528.3s	218	Validation Loss has decreased! Saving best model!
+41576.8s	219	Epoch: 10 | Training Loss: 3.808495 | Validation Loss: 3.811625
+41576.8s	220	No improvement... Patience: 1/10
+41583.7s	221	Approaching time limit!
+41583.7s	222	Keyboard Interrupt! Saving latest model!
