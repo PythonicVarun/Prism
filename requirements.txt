@@ -1,7 +1,7 @@
-torch~=2.11.0
-torchvision~=0.26.0
-gradio~=6.14.0
-opencv-python~=4.13.0.92
-numpy~=2.4.4
-scikit-learn~=1.8.0
-pillow~=12.2.0
+torch==2.14.1
+torchvision~=0.29.1
+gradio~=6.30.0
+opencv-python~=5.0.0.93
+numpy~=2.5.4
+scikit-learn~=1.9.1
+pillow~=12.3.0

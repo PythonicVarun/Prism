@@ -5,16 +5,17 @@ import modal
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install(
-        "torch==2.11.0",
+        "torch==2.14.1",
         extra_index_url="https://download.pytorch.org/whl/cpu",
     )
     .pip_install(
-        "gradio~=6.14.0",
-        "opencv-python-headless~=4.13.0.92",
-        "numpy~=2.4.4",
-        "pillow~=12.2.0",
+        "gradio~=6.30.0",
+        "opencv-python-headless~=5.0.0.93",
+        "numpy~=2.5.4",
+        "pillow~=12.3.0",
     )
     .add_local_dir(Path(__file__).parent / "examples", remote_path="/root/examples")
+    .add_local_file(Path(__file__).parent / "favicon.ico", remote_path="/root/favicon.ico")
 )
 
 volume = modal.Volume.from_name("prism-weights", create_if_missing=True)
@@ -30,6 +31,7 @@ with image.imports():
     import gradio as gr
     import numpy as np
     import torch
+    from fastapi import FastAPI
     from PIL import Image
     from torch import nn
 
@@ -38,17 +40,14 @@ with image.imports():
     image=image,
     volumes={VOLUME_PATH: volume},
     cpu=2,
-    memory=4096,
+    memory=16 * 1024,
     timeout=600,
     min_containers=0,
     max_containers=1,
-    scaledown_window=30,
 )
 @modal.concurrent(max_inputs=3)
 @modal.asgi_app()
 def serve():
-    from fastapi import FastAPI
-
     device = torch.device("cpu")
 
     NumHeads = 8
@@ -240,4 +239,11 @@ def serve():
         See the [LICENSE](https://github.com/nkminion/Prism/blob/main/LICENSE) file for more details.
         """)
 
-    return gr.mount_gradio_app(app=FastAPI(), blocks=demo, path="/")
+    return gr.mount_gradio_app(
+        app=FastAPI(),
+        blocks=demo,
+        path="/",
+        show_error=True,
+        theme=gr.themes.Base(),
+        favicon_path="/root/favicon.ico"
+    )
