@@ -73,39 +73,48 @@ class Colorizer:
                 self.Softmax = nn.Softmax(dim=-1)
 
             def forward(self, x):
+                # SeqLen = 256 currently
                 BatchSize, SeqLen, _ = x.shape
-                Q = (
-                    self.QueryMatrix(x)
-                    .view(BatchSize, SeqLen, NumHeads, HeadDims)
-                    .transpose(1, 2)
+
+                QueryOutput = self.QueryMatrix(x)
+                KeyOutput = self.KeyMatrix(x)
+                ValueOutput = self.ValueMatrix(x)
+
+                # 8 Heads
+                QueryOutput = QueryOutput.view(
+                    BatchSize, SeqLen, NumHeads, HeadDims
+                ).transpose(1, 2)  # B,NumHeads,256,HeadDims
+                KeyOutput = KeyOutput.view(
+                    BatchSize, SeqLen, NumHeads, HeadDims
+                ).transpose(1, 2)  # B,NumHeads,256,HeadDims
+                ValueOutput = ValueOutput.view(
+                    BatchSize, SeqLen, NumHeads, HeadDims
+                ).transpose(1, 2)  # B,NumHeads,256,HeadDims
+
+                # Attention(Q, K, V) = (softmax((QK^T)/sqrt(dk)))*V, dk = HeadDims
+                AttentionOutput = torch.nn.functional.scaled_dot_product_attention(
+                    QueryOutput, KeyOutput, ValueOutput
                 )
-                K = (
-                    self.KeyMatrix(x)
-                    .view(BatchSize, SeqLen, NumHeads, HeadDims)
-                    .transpose(1, 2)
-                )
-                V = (
-                    self.ValueMatrix(x)
-                    .view(BatchSize, SeqLen, NumHeads, HeadDims)
-                    .transpose(1, 2)
-                )
-                attn = self.Softmax((Q @ K.transpose(2, 3)) / math.sqrt(HeadDims))
-                return self.OutputMatrix(
-                    (attn @ V)
-                    .transpose(1, 2)
+                AttentionOutput = (
+                    AttentionOutput.transpose(1, 2)
                     .contiguous()
                     .view(BatchSize, SeqLen, EmbedDim)
                 )
 
+                FinalOutput = self.OutputMatrix(AttentionOutput)
+
+                return FinalOutput
+
         class PrismBlock(nn.Module):
             def __init__(self):
                 super().__init__()
+
                 self.PseudoQuery = nn.Parameter(torch.randn(EmbedDim) * 0.02)
                 self.Attention = Attention()
                 self.MultiLayerPerceptron = nn.Sequential(
-                    nn.Linear(EmbedDim, EmbedDim * 4),
+                    nn.Linear(in_features=EmbedDim, out_features=EmbedDim * 4),
                     nn.GELU(),
-                    nn.Linear(EmbedDim * 4, EmbedDim),
+                    nn.Linear(in_features=EmbedDim * 4, out_features=EmbedDim),
                 )
                 self.LayerNorm1 = nn.LayerNorm(EmbedDim)
                 self.LayerNorm2 = nn.LayerNorm(EmbedDim)
@@ -113,63 +122,131 @@ class Colorizer:
                 self.Softmax = nn.Softmax(dim=0)
 
             def forward(self, x, HistoryList):
-                hist = torch.stack(HistoryList, dim=0)
-                weights = self.Softmax(
-                    (self.LayerNorm1(hist) * self.PseudoQuery).sum(dim=-1)
-                    / math.sqrt(EmbedDim)
-                ).unsqueeze(-1)
-                x = x + self.Attention(self.LayerNorm2((hist * weights).sum(dim=0)))
-                x = x + self.MultiLayerPerceptron(self.LayerNorm3(x))
+                HistoryList = torch.stack(HistoryList, dim=0)  # D,B,SeqLen,EmbedDim
+                HistoryListNorm = self.LayerNorm1(HistoryList)
+
+                Scores = (HistoryListNorm * self.PseudoQuery).sum(dim=-1) / math.sqrt(
+                    EmbedDim
+                )  # D,B,SeqLen
+                Weights = self.Softmax(Scores).unsqueeze(-1)
+
+                XRouted = (HistoryList * Weights).sum(dim=0)
+
+                XRoutedNorm = self.LayerNorm2(XRouted)
+                x = x + self.Attention(XRoutedNorm)
+
+                xNorm = self.LayerNorm3(x)
+                x = x + self.MultiLayerPerceptron(xNorm)
+
                 return x
 
         class PrismModel(nn.Module):
             def __init__(self):
                 super().__init__()
-                self.HighResConv = nn.Sequential(
-                    nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1), nn.GELU()
+                self.Stem = nn.Sequential(
+                    nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1),
+                    nn.GroupNorm(8, 64),
+                    nn.GELU(),
                 )
-                self.InputLayer = nn.Conv2d(64, 256, kernel_size=16, stride=16)
-                self.Flatten = nn.Flatten(start_dim=2)
+                self.Stage1 = nn.Sequential(
+                    nn.Conv2d(64, 96, kernel_size=3, stride=2, padding=1),  # 256 -> 128
+                    nn.GroupNorm(16, 96),
+                    nn.GELU(),
+                    nn.Conv2d(96, 96, kernel_size=3, stride=1, padding=1),
+                    nn.GroupNorm(16, 96),
+                    nn.GELU(),
+                )
+                self.Stage2 = nn.Sequential(
+                    nn.Conv2d(96, 128, kernel_size=3, stride=2, padding=1),  # 128 -> 64
+                    nn.GroupNorm(16, 128),
+                    nn.GELU(),
+                    nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
+                    nn.GroupNorm(16, 128),
+                    nn.GELU(),
+                )
+                self.Stage3 = nn.Sequential(
+                    nn.Conv2d(128, 192, kernel_size=3, stride=2, padding=1),  # 64 -> 32
+                    nn.GroupNorm(16, 192),
+                    nn.GELU(),
+                    nn.Conv2d(192, 192, kernel_size=3, stride=1, padding=1),
+                    nn.GroupNorm(16, 192),
+                    nn.GELU(),
+                )
+                self.PatchEmbed = nn.Sequential(
+                    nn.Conv2d(192, 256, kernel_size=2, stride=2),  # 32 -> 16
+                )
+
+                self.Flatten = nn.Flatten(start_dim=2)  # B, 256, 256
                 self.LearnParam = nn.Parameter(torch.randn((1, 256, 256)) * 0.02)
+
                 self.ModuleList = nn.ModuleList([PrismBlock() for _ in range(8)])
                 self.FinalNorm = nn.LayerNorm(EmbedDim)
-                self.Decoder1 = nn.Sequential(
-                    nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False),
-                    nn.Conv2d(256, 256, 3, 1, 1),
-                    nn.GroupNorm(32, 256),
-                    nn.GELU(),
-                    nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False),
-                    nn.Conv2d(256, 256, 3, 1, 1),
-                    nn.GroupNorm(32, 256),
-                    nn.GELU(),
-                    nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False),
-                    nn.Conv2d(256, 256, 3, 1, 1),
-                    nn.GroupNorm(32, 256),
+
+                self.Decoder3 = nn.Sequential(
+                    nn.Upsample(
+                        scale_factor=2, mode="bilinear", align_corners=False
+                    ),  # 16 -> 32
+                    nn.Conv2d(256 + 192, 192, kernel_size=3, stride=1, padding=1),
+                    nn.GroupNorm(16, 192),
                     nn.GELU(),
                 )
                 self.Decoder2 = nn.Sequential(
-                    nn.Conv2d(320, 128, 3, 1, 1),
+                    nn.Upsample(
+                        scale_factor=2, mode="bilinear", align_corners=False
+                    ),  # 32 -> 64
+                    nn.Conv2d(192 + 128, 128, kernel_size=3, stride=1, padding=1),
                     nn.GroupNorm(16, 128),
                     nn.GELU(),
-                    nn.Conv2d(128, 313, 3, 1, 1),
+                )
+                self.Decoder1 = nn.Sequential(
+                    nn.Upsample(
+                        scale_factor=2, mode="bilinear", align_corners=False
+                    ),  # 64 -> 128
+                    nn.Conv2d(128 + 96, 96, kernel_size=3, stride=1, padding=1),
+                    nn.GroupNorm(16, 96),
+                    nn.GELU(),
+                )
+                self.Decoder0 = nn.Sequential(
+                    nn.Upsample(
+                        scale_factor=2, mode="bilinear", align_corners=False
+                    ),  # 128 -> 256
+                    nn.Conv2d(96 + 64, 64, kernel_size=3, stride=1, padding=1),
+                    nn.GroupNorm(8, 64),
+                    nn.GELU(),
+                    nn.Conv2d(64, 313, kernel_size=1, stride=1),
                 )
 
             def forward(self, x):
-                skip = self.HighResConv(x)
-                x = (
-                    self.Flatten(self.InputLayer(skip)).transpose(1, 2)
-                    + self.LearnParam
-                )
-                history = [x]
-                for block in self.ModuleList:
-                    x = block(x, history)
-                    history.append(x)
-                x = self.FinalNorm(x).transpose(1, 2).reshape(-1, 256, 16, 16)
-                x = self.Decoder1(x)
-                x = nn.functional.interpolate(
-                    x, scale_factor=2, mode="bilinear", align_corners=False
-                )
-                return self.Decoder2(torch.cat([x, skip], dim=1))
+                Skip0 = self.Stem(x)  # B, 64, 256, 256
+                Skip1 = self.Stage1(Skip0)  # B, 96, 128, 128
+                Skip2 = self.Stage2(Skip1)  # B, 128, 64, 64
+                Skip3 = self.Stage3(Skip2)  # B, 192, 32, 32
+
+                Tokens = self.PatchEmbed(Skip3)  # B, 256, 16, 16
+                Tokens = self.Flatten(Tokens)  # B, 256, 256
+                Tokens = Tokens.transpose(1, 2) + self.LearnParam  # B, 256, 256
+
+                HistoryList = [Tokens]
+                for module in self.ModuleList:
+                    Tokens = module(Tokens, HistoryList)
+                    HistoryList.append(Tokens)
+
+                Tokens = self.FinalNorm(Tokens)
+                x = Tokens.transpose(1, 2).reshape(-1, 256, 16, 16)
+
+                x = torch.cat([self.Decoder3[0](x), Skip3], dim=1)
+                x = self.Decoder3[1:](x)
+
+                x = torch.cat([self.Decoder2[0](x), Skip2], dim=1)
+                x = self.Decoder2[1:](x)
+
+                x = torch.cat([self.Decoder1[0](x), Skip1], dim=1)
+                x = self.Decoder1[1:](x)
+
+                x = torch.cat([self.Decoder0[0](x), Skip0], dim=1)
+                x = self.Decoder0[1:](x)
+
+                return x
 
         def load_resources():
             mdl = PrismModel().to(device)
