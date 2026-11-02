@@ -39,7 +39,7 @@ with image.imports():
 @app.function(
     image=image,
     volumes={VOLUME_PATH: volume},
-    cpu=2,
+    cpu=8,
     memory=16 * 1024,
     timeout=600,
     min_containers=0,
