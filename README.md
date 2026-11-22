@@ -69,7 +69,7 @@ torchrun --nproc_per_node=2 <exported_script_name>.py
 
 ## Authors
 
-- **Nishant Kalaichelvan** - [@nkminion](https://github.com/nkminion)
+- **nkminion** - [@nkminion](https://github.com/nkminion)
 - **Varun Agnihotri** - [@PythonicVarun](https://github.com/PythonicVarun) - [hello@pythonicvarun.me](mailto:hello@pythonicvarun.me)
 
 ## License
