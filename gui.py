@@ -275,7 +275,10 @@ def gradio_colorize(image, temperature=DefaultTemperature):
 
 
 def create_interface():
-    with gr.Blocks(title="Prism - Image Colorization") as demo:
+    with gr.Blocks(
+        title="Prism - Image Colorization",
+        theme=gr.themes.Default(primary_hue="blue")
+    ) as demo:
         gr.Markdown("""
         # 🎨 Prism - Image Colorization
         
