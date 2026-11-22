@@ -429,7 +429,7 @@ def serve():
 
         ### Authors
 
-        - **Nishant Kalaichelvan** - [@nkminion](https://github.com/nkminion)
+        - **nkminion** - [@nkminion](https://github.com/nkminion)
         - **Varun Agnihotri** - [@PythonicVarun](https://github.com/PythonicVarun) - [hello@pythonicvarun.me](mailto:hello@pythonicvarun.me)
 
         ### License
